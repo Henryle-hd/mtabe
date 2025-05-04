@@ -4,7 +4,7 @@ from rich.panel import Panel
 from rich.console import Console
 from bots import flash_card_bot
 from config import save_notes,get_past_notes,get_web_notes,reusable_panel_console,slipt_max_words
-
+from reader import read_file
 
 #group group
 @click.group
@@ -71,7 +71,11 @@ def flash_card(filename: str,youtube: str,web: str,local: str):
     elif youtube:
         pass
     elif local:
-        pass
+        notes_from_local_file=read_file(local)
+        console.clear()
+        selected_notes=slipt_max_words(notes_loaded=notes_from_local_file)
+        reusable_panel_console(text=f"File loaded Successful!\nFrom [italic blue]{local}[/italic blue]\nLoaded words: {len(selected_notes)},\nNow you can type your instruction for a bot to create your flash-card",border_style='green',title="Successful!✅",text_style='green')
+        flash_card_bot(filename="FALSE",notes=selected_notes)
 
 
 

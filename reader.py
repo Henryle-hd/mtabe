@@ -6,7 +6,8 @@ from pptx import Presentation
 import openpyxl
 import xlrd
 
-def read_file(filepath):
+def read_file(filepath_in):
+    filepath=os.path.normpath(filepath_in)
     extension = os.path.splitext(filepath)[1].lower()
 
     if extension == '.txt':
@@ -49,5 +50,6 @@ def read_file(filepath):
         return f"Unsupported file type: {extension}"
 
 
-content=read_file(r"S:\cbe\VPA_ASSIGMENT\vba\test.xlsm")
-print(content)
+if __name__ =="__main__":
+    content=read_file(r"S:\cbe\VPA_ASSIGMENT\vba\test.xlsm")
+    print(content)
