@@ -1,4 +1,4 @@
-from config import groq_client,get_notes,display_table,reusable_figlet
+from config import groq_client,get_notes,display_table,reusable_figlet,reusable_panel_console
 from rich.prompt import Prompt
 from rich.live import Live
 from rich.panel import Panel
@@ -65,19 +65,21 @@ def call_llm(SYSTEM_PROMPT: str,bot_name:str):
         )
 
         #playing with chucks
+        content=""
+        for chuck in completion:
+            part=chuck.choices[0].delta.content or ""
+            content+=part
+
         if bot_name=='flash_card':
-            content=""
-            for chuck in completion:
-                part=chuck.choices[0].delta.content or ""
-                content+=part
             display_card(content=content)
         elif bot_name=="test":
-            content=""
-            with Live(Panel(content,title=instruction,border_style="bold yellow"),console=console, refresh_per_second=30) as live:
-                for chuck in completion:
-                    part=chuck.choices[0].delta.content or ""
-                    content+=part
-                    live.update(Panel(content,title=instruction,border_style="bold yellow"))
+            display_test(content)
+            # content=""
+            # with Live(Panel(content,title=instruction,border_style="bold yellow"),console=console, refresh_per_second=30) as live:
+            #     for chuck in completion:
+            #         part=chuck.choices[0].delta.content or ""
+            #         content+=part
+            #         live.update(Panel(content,title=instruction,border_style="bold yellow"))
 
 
 
@@ -182,6 +184,62 @@ def display_card(content:str,in_table:bool=False,is_saved:bool=False):
                 quit()
 
 
+def display_test(content: str):
+    test_list=[]
+    test_list=ast.literal_eval(content)
+
+    #[question]  
+    questions_list=[]
+    for question in test_list:
+        if question.get('options'):
+            questions_list.append([f"{question['question']}\n{"\n".join(question['options'])}\n"])
+        else:
+            questions_list.append([f"{question['question']}\n"])
+
+    #display in  table
+    console.clear()
+    print("\n")
+    console.rule("[bold blue] Start of Test sheat📰[/bold blue]")
+    # reusable_figlet(" Test sheat")
+    reusable_panel_console(
+        text=f"""
+        1. Read all questions carefully before answering.\n
+        2. Answer all {len(questions_list)} questions below unless stated otherwise.\n
+        3. The purpose of this test is to measure your understanding — not to win. [bold red]DO NOT CHEAT.[/bold red]""",border_style="yellow",title="TEST INSTRUCTIONS",text_style="yellow")
+    print("\n")
+    display_table(["Questions"], f"Questions {len(questions_list)}",row_data=questions_list)
+    console.rule("[bold blue] End of Test sheat[/bold blue]")
+
+    student_answers_and_bot_qa=[]
+    {
+        "question":"",
+        "answer":"",
+        "student_answer":""
+    }
+    #Taking user test answer
+    for idx,question in enumerate(test_list):
+        answer=Prompt.ask(f"[italic green]Answer for qn {idx+1}[/italic green]")
+        qn_dict={
+            'question':question['question'],
+            'answer':question['answer'],
+            'student_answer':answer
+        }
+        if question.get('options'):
+            qn_dict['options']=question['options']
+        student_answers_and_bot_qa.append(qn_dict)
+
+    print(student_answers_and_bot_qa)
+
+
+#mark the exam func
+{
+    "scores":["7/10","3/5",...],
+    "test_score":"40/100"
+}
+def mark_text(sheat_qa: dict):
+    pass
+
+
 
 #Test generator bot
 def test_gen_bot(filename:str,notes: str):
@@ -235,3 +293,4 @@ def test_gen_bot(filename:str,notes: str):
 
     #llm
     call_llm(SYSTEM_PROMPT,bot_name="test")
+
