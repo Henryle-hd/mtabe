@@ -32,6 +32,110 @@ quotes = [
     ["Hard work beats talent when talent doesn't work hard.", "Tim Notke"]
 ]
 
+def call_llm(SYSTEM_PROMPT: str,bot_name:str):
+    #Groq client
+    client=groq_client()
+    #Taking instruction Loop
+    countq=0
+    while True:
+        countq+=1
+        instruction=Prompt.ask("\n[italic yellow]Your Instruction (q to quit)[/italic yellow]")
+        if instruction.lower() =='q':
+            console.clear()
+            reusable_figlet("- Bye -")
+            console.print("[italic green]Goodbye....[/italic green]")
+            break
+        completion = client.chat.completions.create(
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"{SYSTEM_PROMPT}"
+                },
+                {
+                    "role": "user",
+                    "content": f"Student Instruction: {instruction}"
+                }
+            ],
+            temperature=1,
+            max_completion_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+
+        #playing with chucks
+        if bot_name=='flash_card':
+            content=""
+            for chuck in completion:
+                part=chuck.choices[0].delta.content or ""
+                content+=part
+            display_card(content=content)
+        elif bot_name=="test":
+            content=""
+            with Live(Panel(content,title=instruction,border_style="bold yellow"),console=console, refresh_per_second=30) as live:
+                for chuck in completion:
+                    part=chuck.choices[0].delta.content or ""
+                    content+=part
+                    live.update(Panel(content,title=instruction,border_style="bold yellow"))
+
+
+
+#flash card bot 
+def flash_card_bot(filename: str,notes:str):
+
+    #check where the notes is from
+    notes_passed=""
+    if filename=="FALSE":
+        notes_passed=notes
+    else:
+        notes_passed=get_notes(filename)
+    
+    #Title
+    print("\n")
+    reusable_figlet(" FLASH CARD ")
+
+    
+    SYSTEM_PROMPT=f"""
+        You are an expert flashcard generator designed to help students study using terminal-friendly flashcards. You are given:
+
+        - Notes on a topic.
+        - Student profile: name, level, preferred language (e.g., English), and area of focus (e.g., IT, CS, Science, Art, etc.).
+        - Student Instruction: number of flashcards to generate.
+
+        Your task is to return flashcards that:
+        1. Are based on the notes provided.
+        2. Match the student’s level and focus area.
+        3. Use the student’s preferred language.
+        4. Include a mix of text-based questions and **ASCII or emoji-based simple visual illustrations** that help explain or represent concepts.
+        5. fun emojis should be related to question, people, cart, computer, mouse, fun emojis to help in remembering
+        6. Return a list of Python dictionaries in the following format:
+        [
+        opening curl bracket
+        
+            "question": "question here",
+            "answer": "Clear and concise answer based on the notes",
+            "emoji":"😁"
+        closing curl bracket here
+        ...
+        ]
+
+        If the number of flashcards is not specified, return a maximum of five. Questions must be diverse and vary in format. Prefer simplicity and clarity.
+        Return only the Python dictionary list. No pretext or post-text.
+        Do not add any pretext or post-text.
+
+        ____________________PROVIDED DETAILS___________________________
+        NOTES: {notes_passed}
+        STUDENT PROFILE: 'HENRY DIONIZI', college student, English, IT
+        """
+    
+    # instruction panel
+    print('\n')
+    console.print(Panel.fit("1. Give 10 card, \n2. Just 3,\n3.I need very hard 4 questions, etc", title="Example of Instruction.🥰",border_style='yellow'))
+
+    #llm
+    call_llm(SYSTEM_PROMPT,bot_name="flash_card")
+    
 
 # Displaying question, answer and qoutes for now!
 def display_card(content:str,in_table:bool=False,is_saved:bool=False):
@@ -77,10 +181,10 @@ def display_card(content:str,in_table:bool=False,is_saved:bool=False):
                 console.print("[italic green]Goodbye....[/italic green]")
                 quit()
 
-#flash card bot 
-def flash_card_bot(filename: str,notes:str):
 
-    #check where the notes is from
+
+#Test generator bot
+def test_gen_bot(filename:str,notes: str):
     notes_passed=""
     if filename=="FALSE":
         notes_passed=notes
@@ -89,87 +193,45 @@ def flash_card_bot(filename: str,notes:str):
     
     #Title
     print("\n")
-    reusable_figlet(" FLASH CARD ")
+    reusable_figlet("- TEST -")
 
-    #Groq client
-    client=groq_client()
+    #Prompt
     SYSTEM_PROMPT=f"""
-        You are an expert flashcard generator designed to help students study using terminal-friendly flashcards. You are given:
+        You are a smart, helpful teacher. Your role is to create a test based on provided lecture notes and the student's profile.
+        You will always receive:
 
-        - Notes on a topic.
-        - Student profile: name, level, preferred language (e.g., English), and area of focus (e.g., IT, CS, Science, Art, etc.).
-        - Student Instruction: number of flashcards to generate.
+            NOTES, STUDENT PROFILE
+            The student may request a specific type of test or ask you to mix types like:
+            ["multiple choice", "true/false", "essay", "fill the blank", "mix", "short explanation", "short answer"].
 
-        Your task is to return flashcards that:
-        1. Are based on the notes provided.
-        2. Match the student’s level and focus area.
-        3. Use the student’s preferred language.
-        4. Include a mix of text-based questions and **ASCII or emoji-based simple visual illustrations** that help explain or represent concepts.
-        5. fun emojis should be related to question, people, cart, computer, mouse, fun emojis to help in remembering
-        6. Return a list of Python dictionaries in the following format:
+        Your task:
+            1. Analyze the notes and student profile to make questions appropriate for their level.
+            2. Follow the user (student)'s instruction to decide the number and type of questions.
+            3. Mix questions if instructed or generate a default of 5 mixed questions/one time if not specified.
+            4. Provide your response as a Python list of dictionaries, each formatted like this:
         [
         opening curl bracket
-        
-            "question": "question here",
-            "answer": "Clear and concise answer based on the notes",
-            "emoji":"😁"
-        closing curl bracket here
-        ...
+        "question": "What is the capital of France?",
+        "answer": "Paris",
+        "options":[]
+        "question":"Which platform offers over 900 free certificate courses for learning software development?,
+        "answer":"A. Class Central"
+        options:[ A. Class Central\n B. freeCodeCamp\n C.Coursera\nD. edX"]
+        closing curl bracket
         ]
-
-        If the number of flashcards is not specified, return a maximum of five. Questions must be diverse and vary in format. Prefer simplicity and clarity.
-        Return only the Python dictionary list. No pretext or post-text.
-        Do not add any pretext or post-text.
-
-        ____________________PROVIDED DETAILS___________________________
-        NOTES: {notes_passed}
-        STUDENT PROFILE: 'HENRY DIONIZI', college student, English, IT
-        """
-    
-    # instruction panel
-    print('\n')
-    console.print(Panel.fit("1. Give 10 card, \n2. Just 3,\n3.I need very hard 4 questions, etc", title="Example of Instruction.🥰",border_style='yellow'))
-
-    #Taking instruction Loop
-    countq=0
-    while True:
-        countq+=1
-        instruction=Prompt.ask("\n[italic yellow]Your Instruction (q to quit)[/italic yellow]")
-        if instruction.lower() =='q':
-            console.clear()
-            reusable_figlet("- Bye -")
-            console.print("[italic green]Goodbye....[/italic green]")
-            break
-        completion = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"{SYSTEM_PROMPT}"
-                },
-                {
-                    "role": "user",
-                    "content": f"Student Instruction: {instruction}"
-                }
-            ],
-            temperature=1,
-            max_completion_tokens=1024,
-            top_p=1,
-            stream=True,
-            stop=None,
-        )
-
-        #playing with chucks
-        content=""
-        for chuck in completion:
-            part=chuck.choices[0].delta.content or ""
-            content+=part
-        # with Live(Panel(content,title=instruction,border_style="bold yellow"),console=console, refresh_per_second=30) as live:
-        #     for chuck in completion:
-        #         part=chuck.choices[0].delta.content or ""
-        #         content+=part
-        #         live.update(Panel(content,title=instruction,border_style="bold yellow"))
-        display_card(content=content)
-
         
+        - Do not include any explanations, pre-text, or post-text. Only return the Python data.
+        - Keep questions clear, accurate, and educational.
+        -If a question is open-ended, provide a sample good answer.
 
+            ____________________PROVIDED DETAILS___________________________
+                NOTES: {notes_passed}
+                STUDENT PROFILE: 'HENRY DIONIZI', college student, English, IT
+        """
+
+    #Instruction example
+    print('\n')
+    console.print(Panel.fit("1. I need ten multiple choice, \n2. fill the blank questions ,\n3.Just 5 short explanation qn\n4. True and false 5 question \n5.Two essay qn\n6. short answer question, etc", title="Example of Instruction.🥰",border_style='yellow'))
+
+    #llm
+    call_llm(SYSTEM_PROMPT,bot_name="test")

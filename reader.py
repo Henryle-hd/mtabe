@@ -5,6 +5,7 @@ import PyPDF2
 from pptx import Presentation
 import openpyxl
 import xlrd
+from config import reusable_panel_console
 
 def read_file(filepath_in):
     filepath=os.path.normpath(filepath_in)
@@ -47,9 +48,10 @@ def read_file(filepath_in):
             df = pd.read_csv(filepath)
             return df.to_string(index=False)
     else:
-        return f"Unsupported file type: {extension}"
+        reusable_panel_console(text=f"Unsupported file type:  {extension}\nSupported file type are: .txt,.pdf,.docx,.xlsx,.xls,.xlsm,.csv,.pptx",border_style='red',text_style='red', title='Oops❌')
+        quit()
 
 
 if __name__ =="__main__":
-    content=read_file(r"S:\cbe\VPA_ASSIGMENT\vba\test.xlsm")
+    content=read_file("S:\cbe\VPA_ASSIGMENT\vba\test.xlsm")
     print(content)
