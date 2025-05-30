@@ -1,4 +1,4 @@
-from config import groq_client,get_notes,display_table,reusable_figlet,reusable_panel_console
+from config import groq_client,get_notes,display_table,reusable_figlet,reusable_panel_console,get_user_info
 from rich.prompt import Prompt
 from rich.live import Live
 from rich.panel import Panel
@@ -8,7 +8,8 @@ import ast
 from random import choice
 console=Console()
 
-
+student_info=get_user_info()
+# print(student_info)
 quotes = [
     ["The secret of getting ahead is getting started.", "Mark Twain"],
     ["Success is not final, failure is not fatal: It is the courage to continue that counts.", "Winston Churchill"],
@@ -128,7 +129,7 @@ def flash_card_bot(filename: str,notes:str):
 
         ____________________PROVIDED DETAILS___________________________
         NOTES: {notes_passed}
-        STUDENT PROFILE: 'HENRY DIONIZI', college student, English, IT
+        STUDENT PROFILE: {student_info[0]}, {student_info[1]}, {student_info[2]}
         """
     
     # instruction panel

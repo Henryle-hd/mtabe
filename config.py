@@ -13,6 +13,9 @@ from pyfiglet import Figlet
 #GROK API_KEY
 load_dotenv()
 API_KEY=os.getenv("GROQ_API_KEY")
+NAME=os.getenv("NAME")
+LEVEL=os.getenv("LEVEL")
+FOCUS_AREA=os.getenv("FOCUS_AREA")
 FOLDER="notes"
 MAX_WORDS=3000
 console=Console()
@@ -34,11 +37,10 @@ def groq_client():
             console.print(panel)
             quit()
         try:
-            with open(".env","w", encoding='utf-8') as f:
-                f.write("GROQ_API_KEY="+api_key)
+            with open(".env","+a", encoding='utf-8') as f:
+                f.write("\nGROQ_API_KEY="+api_key+"\n")
                 panel=Panel.fit(f"Groq api key added! enjoy your learning [green]Mtabe kipange 😁🔥[/green] ",title="Successful!",border_style='green')
                 console.print(panel)
-                
                 #return client here!
                 return Groq(api_key=api_key)
         except:
@@ -95,10 +97,25 @@ def display_table(columns:list,title:str,row_data:list):
 
 #configuration commant:
     # - student information
-        # - name, level, Language, area of focus (IT, CS, scrience)
+        # - name, level, Language, area of focus (IT, CS, science)
 #configuration command
-def get_user_info():
-    pass
+def get_user_info()->list:
+    if NAME is None or LEVEL is None or FOCUS_AREA is None:
+        panel=Panel.fit("Help Bots to know you, for better results")
+        console.print(panel)
+        vibe_name=Prompt.ask("[green]Enter vibe name(eg. Henry)[/green]")
+        vibe_level=Prompt.ask("[green]Your vibe level (eg. college student)[/green]")
+        focus=Prompt.ask("[green]Your Area of focus(eg. IT)[/green]")
+        try:
+            with open(".env","+a",encoding="utf-8") as file:
+                file.write(f"\nNAME={vibe_name}\nLEVEL={vibe_level}\nFOCUS_AREA={focus}")
+            return [vibe_name,vibe_level,focus]
+        except:
+            panel=Panel.fit("[red] Error when writing your info to .env file")
+            console.print(panel)
+            quit()
+    else:
+        return [NAME,LEVEL,FOCUS_AREA]
 
 
 
@@ -156,3 +173,5 @@ def get_past_notes(notes:str)-> str:
         console.print(panel)
         quit()
     return notes
+
+

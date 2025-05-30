@@ -50,7 +50,6 @@ def get_youtube_subtitles(url: str, lang: str = "en") -> str:
         try:
             with open(subtitle_file, "r", encoding="utf-8") as f:
                 lines = f.readlines()
-            
             subtitle_text = []
             for line in lines:
                 if line.strip() == "" or "-->" in line or line.startswith("WEBVTT"):
