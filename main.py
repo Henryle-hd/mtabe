@@ -2,10 +2,10 @@ import click
 import os
 from rich.panel import Panel
 from rich.console import Console
-from bots import flash_card_bot,test_gen_bot, chat_bot
-from config import save_notes,get_past_notes,get_web_notes,reusable_panel_console,slipt_max_words
-from reader import read_file
-from youtube_sbt import get_youtube_subtitles
+from mtabe.bots.bots import flash_card_bot,test_gen_bot, chat_bot
+from mtabe.config.config import save_notes,get_past_notes,get_web_notes,reusable_panel_console,slipt_max_words
+from mtabe.reader.reader import read_file
+from mtabe.youtube.youtube_sbt import get_youtube_subtitles
 
 #group group
 @click.group
@@ -22,12 +22,12 @@ console=Console()
 @click.option("-y","--youtube", help="youtube video url where you need get notes from")
 @click.option("-w","--web", help="Website url where you need get notes from")
 @click.option("-l","--local", help="Local filepath where you need get notes from")
-def add_notes(filename,youtube,web,local:str='NOT-FOUND',type: str='NOT-FOUND'):
+def add(filename,youtube,web,local:str='NOT-FOUND',type: str='NOT-FOUND'):
     options=[type,youtube,web,local]
     provided=[opt for opt in options if opt is not None]
     if len(provided)!=1:
         raise click.UsageError("You must provide exactly one of the options: --filename/-f, --youtube/-y, --web/-w, or --local/-l")
-    
+
     if type:
         notes_pasted=get_past_notes(type)
         isSaved,words_num=save_notes(notes=notes_pasted,notes_name=filename)
@@ -101,7 +101,7 @@ def call_bot_and_get_content(filename: str,youtube: str,web: str,local: str, bot
 @click.option("-y","--youtube", help="youtube video url where you need get content from")
 @click.option("-w","--web", help="Website url where you need get content from")
 @click.option("-l","--local", help="Local filepath where you need get content from")
-def flash_card(filename: str,youtube: str,web: str,local: str):
+def flash(filename: str,youtube: str,web: str,local: str):
     call_bot_and_get_content(filename,youtube,web,local,bot_name="flash_card",bot_func=flash_card_bot)
 
 
@@ -121,12 +121,12 @@ def test(filename: str,youtube: str,web: str,local: str):
 @click.option("-w","--web", help="Website url where you need get content from")
 @click.option("-l","--local", help="Local filepath where you need get content from")
 def chat(filename: str,youtube: str,web: str,local: str):
-    call_bot_and_get_content(filename,youtube,web,local,bot_name="chat",bot_func=chat_bot)
+    call_bot_and_get_content(filename,youtube,web,local,bot_name="chat room",bot_func=chat_bot)
 
 
 #adding command
-mycommands.add_command(add_notes)
-mycommands.add_command(flash_card)
+mycommands.add_command(add)
+mycommands.add_command(flash)
 mycommands.add_command(test)
 mycommands.add_command(chat)
 

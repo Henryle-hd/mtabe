@@ -5,7 +5,7 @@ import PyPDF2
 from pptx import Presentation
 import openpyxl
 import xlrd
-from config import reusable_panel_console
+from mtabe.config.config import reusable_panel_console
 
 def read_file(filepath_in):
     filepath=os.path.normpath(filepath_in)

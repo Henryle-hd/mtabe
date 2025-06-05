@@ -23,32 +23,32 @@ pip install mtabe
 
 ```bash
 # Add notes by typing/pasting
-mtabe add-notes mynotes -t
+mtabe add mynotes -t
 
 # Add notes from a YouTube video
-mtabe add-notes physics-lecture -y "https://youtube.com/watch?v=xxxxx"
+mtabe add physics-lecture -y "https://youtube.com/watch?v=xxxxx"
 
 # Add notes from a webpage
-mtabe add-notes chemistry-notes -w "https://example.com/chemistry-lesson"
+mtabe add chemistry-notes -w "https://example.com/chemistry-lesson"
 
 # Add notes from a local file
-mtabe add-notes math-formulas -l "path/to/your/file.pdf"
+mtabe add math-formulas -l "path/to/your/file.pdf"
 ```
 
 ### Creating Flashcards
 
 ```bash
 # Create flashcards from saved notes
-mtabe flash-card -f mynotes
+mtabe flash -f mynotes
 
 # Create flashcards directly from YouTube
-mtabe flash-card -y "https://youtube.com/watch?v=xxxxx"
+mtabe flash -y "https://youtube.com/watch?v=xxxxx"
 
 # Create flashcards from a webpage
-mtabe flash-card -w "https://example.com/lesson"
+mtabe flash -w "https://example.com/lesson"
 
 # Create flashcards from a local file
-mtabe flash-card -l "path/to/your/file.pdf"
+mtabe flash -l "path/to/your/file.pdf"
 ```
 
 ### Generating Tests
@@ -102,11 +102,11 @@ This information helps MTABE personalize your learning experience.
 
 ```bash
 # Create 10 flashcards from a YouTube lecture
-mtabe flash-card -y "https://youtube.com/watch?v=xxxxx"
+mtabe flash -y "https://youtube.com/watch?v=xxxxx"
 
 # Generate a mixed test from saved notes
 mtabe test -f chemistry-notes
 
 # Add notes from a PDF textbook
-mtabe add-notes chapter5 -l "textbook/chapter5.pdf"
+mtabe add chapter5 -l "textbook/chapter5.pdf"
 ```

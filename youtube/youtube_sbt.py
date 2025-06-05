@@ -3,7 +3,7 @@ import os
 import tempfile
 import time
 import glob
-from config import reusable_panel_console
+from mtabe.config.config import reusable_panel_console
 
 def get_youtube_subtitles(url: str, lang: str = "en") -> str:
     """

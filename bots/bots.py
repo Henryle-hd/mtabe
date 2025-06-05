@@ -1,4 +1,4 @@
-from config import groq_client,get_notes,display_table,reusable_figlet,reusable_panel_console,get_user_info
+from mtabe.config.config import groq_client,get_notes,display_table,reusable_figlet,reusable_panel_console,get_user_info
 from rich.prompt import Prompt
 from rich.live import Live
 from rich.panel import Panel
@@ -394,7 +394,8 @@ def chat_bot(filename:str,notes: str):
         question=Prompt.ask("[yellow italic]Ask anything (q to quit)[/yellow italic]")
         if question.lower()=="q":
             console.clear()
-            reusable_figlet("GoodBye")
+            reusable_figlet("- Bye -")
+            console.print("[italic green]Goodbye....[/italic green]")
             break
 
         completion = client.chat.completions.create(
