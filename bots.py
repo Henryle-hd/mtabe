@@ -75,12 +75,6 @@ def call_llm(SYSTEM_PROMPT: str,bot_name:str):
             display_card(content=content)
         elif bot_name=="test":
             display_test(content)
-            # content=""
-            # with Live(Panel(content,title=instruction,border_style="bold yellow"),console=console, refresh_per_second=30) as live:
-            #     for chuck in completion:
-            #         part=chuck.choices[0].delta.content or ""
-            #         content+=part
-            #         live.update(Panel(content,title=instruction,border_style="bold yellow"))
 
 
 
@@ -229,7 +223,8 @@ def display_test(content: str):
             qn_dict['options']=question['options']
         student_answers_and_bot_qa.append(qn_dict)
 
-    print(student_answers_and_bot_qa)
+    # print(student_answers_and_bot_qa)
+    mark_text(student_answers_and_bot_qa)
 
 
 #mark the exam func
@@ -238,7 +233,71 @@ def display_test(content: str):
     "test_score":"40/100"
 }
 def mark_text(sheat_qa: dict):
-    pass
+    SYSTEM_PROMPT=f"""
+        > You are a Marking Teacher Bot. You will receive a dictionary with the following keys:
+        > opening curl bracket
+        >   "question": "",         # The full question, including any indication of total marks
+        >   "answer": "",           # The correct or model answer
+        >   "student_answer": ""    # The student's submitted answer
+        > closing curl bracket
+        > Your job is to:
+        > 1. Analyze the question to determine the **total possible score** (e.g., from "Qn 1. (10 marks)", infer 10).
+        > 2. Compare the student’s answer to the correct answer.
+        > 3. Assign a fair score based on **how well the student answered relative to the model answer**, using the total marks available for that question.
+        > 4. Repeat for every question.
+        > 5. Return the result as a Python dictionary with:
+        opening curl bracket
+        "score_questions": ["7/10🟨", "3/5🟨", "10/10✅","0/5❌"],  # Individual scores per question
+        "test_score": "40/100"       # Total score out of number of question
+        closing curl bracket
+        
+        > **Rules:**
+        > * Do not add any explanations or extra text. means no pretext or post text
+        > * student’s final score should be out of number of question.
+        > * If total marks cannot be found in a question, assume 10 marks.
+        > * Make fair, consistent judgments based on content accuracy, clarity, and relevance.
+        Quetion, answer & student answer: {sheat_qa}
+        STUDENT PROFILE: {student_info[0]}, {student_info[1]}, {student_info[2]}
+    """
+    client=groq_client()
+    completion = client.chat.completions.create(
+    model="meta-llama/llama-4-scout-17b-16e-instruct",
+        messages=[
+            {
+                "role": "system",
+                "content": f"{SYSTEM_PROMPT}"
+            },
+            # {
+            #     "role": "user",
+            #     "content": f"Student Instruction: {instruction}"
+            # }
+        ],
+        temperature=1,
+        max_completion_tokens=1024,
+        top_p=1,
+        stream=True,
+        stop=None,
+    )
+
+    #playing with chucks
+    content=""
+    for chuck in completion:
+        part=chuck.choices[0].delta.content or ""
+        content+=part
+    # print("called________")
+    # print(content)
+
+    answer_dict=ast.literal_eval(content)
+
+    # question | answer | your answer | score
+
+    table_raw_data=[]
+    for idx,qa in enumerate(sheat_qa):
+        table_raw_data.append([qa['question'],qa["answer"], qa["student_answer"],answer_dict['score_questions'][idx]])
+    # print(table_raw_data)
+    display_table(columns=["Question","Answer","Your Answer","Score"],title="Marking-Scheam",row_data=table_raw_data)
+    reusable_panel_console(text=f"Total Score: {answer_dict["test_score"]}",border_style="green",title="YOUR SCORE")
+
 
 
 
@@ -249,7 +308,7 @@ def test_gen_bot(filename:str,notes: str):
         notes_passed=notes
     else:
         notes_passed=get_notes(filename)
-    
+
     #Title
     print("\n")
     reusable_figlet("- TEST -")
@@ -285,7 +344,7 @@ def test_gen_bot(filename:str,notes: str):
 
             ____________________PROVIDED DETAILS___________________________
                 NOTES: {notes_passed}
-                STUDENT PROFILE: 'HENRY DIONIZI', college student, English, IT
+                STUDENT PROFILE: {student_info[0]}, {student_info[1]}, {student_info[2]}
         """
 
     #Instruction example
@@ -295,3 +354,78 @@ def test_gen_bot(filename:str,notes: str):
     #llm
     call_llm(SYSTEM_PROMPT,bot_name="test")
 
+def chat_bot(filename:str,notes: str):
+    notes_passed=""
+    if filename=="FALSE":
+        notes_passed=notes
+    else:
+        notes_passed=get_notes(filename)
+
+    #Title
+    print("\n")
+    reusable_figlet("- CHAT -")
+
+# - Do not copy-paste full content from the notes. Instead, help the student understand by rephrasing, asking follow-up questions, giving short examples, and checking their understanding.
+
+    SYSTEM_PROMPT = f"""
+        You are a helpful, smart, and motivational chatbot designed to assist students with their learning.
+
+        You receive:
+        - Class notes (your only knowledge base),
+        - A student profile: name, level (e.g., diploma, degree), and focus area (e.g., AI, marketing).
+
+        Your job is to:
+
+        - Use only the provided notes to answer questions. Do not add any outside information unless the student asks for it.
+        - Answer directly and briefly unless the student asks you to explain more.
+        - Refer to the student by their name often in the conversation.
+        - Offer short, focused study tips and test/exam-winning suggestions based on their focus area.
+        - Occasionally mention well-known people in their focus area only if the student asks for inspiration or additional resources.
+        - Always encourage critical thinking, curiosity, and active learning. Your goal is not to give answers but to help the student learn.
+
+        ____________________PROVIDED DETAILS___________________________
+        NOTES: {notes_passed}
+        STUDENT PROFILE: Name: {student_info[0]}, Level: {student_info[1]}, Focus Area: {student_info[2]}
+    """
+
+    client=groq_client()
+
+    while True:
+        question=Prompt.ask("[yellow italic]Ask anything (q to quit)[/yellow italic]")
+        if question.lower()=="q":
+            console.clear()
+            reusable_figlet("GoodBye")
+            break
+
+        completion = client.chat.completions.create(
+        model="meta-llama/llama-4-scout-17b-16e-instruct",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"{SYSTEM_PROMPT}"
+                },
+                {
+                    "role": "user",
+                    "content": f"Student Instruction: {question}"
+                }
+            ],
+            temperature=1,
+            max_completion_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+
+        #playing with chucks
+        # content=""
+        # for chuck in completion:
+        #     part=chuck.choices[0].delta.content or ""
+        #     content+=part
+
+        content=""
+        with Live(Panel(content,title=question,border_style="bold yellow"),console=console, refresh_per_second=30) as live:
+            for chuck in completion:
+                part=chuck.choices[0].delta.content or ""
+                content+=part
+                live.update(Panel(content,title=question,border_style="bold yellow"))
+        print("\n")

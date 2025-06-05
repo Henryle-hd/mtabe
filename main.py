@@ -2,7 +2,7 @@ import click
 import os
 from rich.panel import Panel
 from rich.console import Console
-from bots import flash_card_bot,test_gen_bot
+from bots import flash_card_bot,test_gen_bot, chat_bot
 from config import save_notes,get_past_notes,get_web_notes,reusable_panel_console,slipt_max_words
 from reader import read_file
 from youtube_sbt import get_youtube_subtitles
@@ -115,10 +115,20 @@ def test(filename: str,youtube: str,web: str,local: str):
     call_bot_and_get_content(filename,youtube,web,local,bot_name="test",bot_func=test_gen_bot)
 
 
+@click.command()
+@click.option('-f', "--filename", help='To use this option you should alread add notes using add-notes command, if alread just type -n "filename"')
+@click.option("-y","--youtube", help="youtube video url where you need get content from")
+@click.option("-w","--web", help="Website url where you need get content from")
+@click.option("-l","--local", help="Local filepath where you need get content from")
+def chat(filename: str,youtube: str,web: str,local: str):
+    call_bot_and_get_content(filename,youtube,web,local,bot_name="chat",bot_func=chat_bot)
+
+
 #adding command
 mycommands.add_command(add_notes)
 mycommands.add_command(flash_card)
 mycommands.add_command(test)
+mycommands.add_command(chat)
 
 
 if __name__ =="__main__":
