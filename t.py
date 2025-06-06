@@ -1,1 +1,0 @@
-print(len("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"))
