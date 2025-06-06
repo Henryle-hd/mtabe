@@ -29,22 +29,22 @@ def reusable_figlet(to_display:str):
 def groq_client():
     if API_KEY is None:
         print("\n")
-        panel=Panel.fit(f"[yellow] To use MTABE CLI AI tool you need to add groq api key just vist at [italic blue] https://console.groq.com/keys [/italic blue] To get you api key and past it below!, [italic green]Note: ITS FREE Mtabe usiogope kama Marioo😁[/italic green],  Thank your![/yellow]",title="ADD GROK API KEY ONCE", border_style='yellow')
+        panel=Panel.fit(f"[yellow] To use MTABE CLI AI tool you need to add groq api key just vist at [italic blue] https://console.groq.com/keys [/italic blue] To get you api key and past it below!, [italic green]Note: ITS FREE genius  😁[/italic green],  Thank your![/yellow]",title="ADD GROK API KEY ONCE", border_style='yellow')
         console.print(panel)
         api_key=Prompt.ask("[green]Past Groq API_KEY here[/green]")
         if len(api_key) <56:
-            panel=Panel.fit("[red]Ijust vist at [italic yellow] https://console.groq.com/keys [/italic yellow] To get you api key and passed it here!,[italic green] Note: ITS FREE Mtabe usiogope kama Marioo😁[/red]",title="INVALID KEY", border_style="bold red")
+            panel=Panel.fit("[red]Ijust vist at [italic yellow] https://console.groq.com/keys [/italic yellow] To get you api key and passed it here!,[italic green] Note: ITS FREE genius 😁[/red]",title="INVALID KEY", border_style="bold red")
             console.print(panel)
             quit()
         try:
             with open(".env","+a", encoding='utf-8') as f:
                 f.write("\nGROQ_API_KEY="+api_key+"\n")
-                panel=Panel.fit(f"Groq api key added! enjoy your learning [green]Mtabe kipange 😁🔥[/green] ",title="Successful!",border_style='green')
+                panel=Panel.fit(f"Groq api key added! enjoy your learning [green]Genius 😁🔥[/green] ",title="Successful!",border_style='green')
                 console.print(panel)
                 #return client here!
                 return Groq(api_key=api_key)
         except:
-            panel=Panel.fit("[red]Try again [green]Mtabe wetu[/green] Just vist at [italic yellow] https://console.groq.com/keys [/italic yellow] To get you api key and past it below!,[italic green] Note: ITS FREE Mtabe usiogope kama Marioo😁[/red]",title="Error when adding key", border_style="red")
+            panel=Panel.fit("[red]Try again [green]Mtabe wetu[/green] Just vist at [italic yellow] https://console.groq.com/keys [/italic yellow] To get you api key and past it below!,[italic green] Note: ITS FREE genius 😁[/red]",title="Error when adding key", border_style="red")
             console.print(panel)
             quit()
     else:
@@ -103,9 +103,9 @@ def get_user_info()->list:
     if NAME is None or LEVEL is None or FOCUS_AREA is None:
         panel=Panel.fit("Help Bots to know you, for better results")
         console.print(panel)
-        vibe_name=Prompt.ask("[green]Enter vibe name(eg. Henry)[/green]")
-        vibe_level=Prompt.ask("[green]Your vibe level (eg. college student)[/green]")
-        focus=Prompt.ask("[green]Your Area of focus(eg. IT)[/green]")
+        vibe_name=Prompt.ask("[green] 👤Enter vibe name(eg. Henry)[/green]")
+        vibe_level=Prompt.ask("[green] 🎚️Your vibe level (eg. college student)[/green]")
+        focus=Prompt.ask("[green] 🎯 Your Area of focus(eg. IT)[/green]")
         try:
             with open(".env","+a",encoding="utf-8") as file:
                 file.write(f"\nNAME={vibe_name}\nLEVEL={vibe_level}\nFOCUS_AREA={focus}")

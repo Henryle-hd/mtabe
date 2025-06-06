@@ -128,7 +128,7 @@ def flash_card_bot(filename: str,notes:str):
     
     # instruction panel
     print('\n')
-    console.print(Panel.fit("1. Give 10 card, \n2. Just 3,\n3.I need very hard 4 questions, etc", title="Example of Instruction.🥰",border_style='yellow'))
+    console.print(Panel.fit("1. Give me 10 cards, \n2. Just 3,\n3. I need very hard 4 questions, etc", title="Example of Instruction.🥰",border_style='yellow'))
 
     #llm
     call_llm(SYSTEM_PROMPT,bot_name="flash_card")
@@ -183,7 +183,7 @@ def display_test(content: str):
     test_list=[]
     test_list=ast.literal_eval(content)
 
-    #[question]  
+    #[question]
     questions_list=[]
     for question in test_list:
         if question.get('options'):
@@ -295,8 +295,12 @@ def mark_text(sheat_qa: dict):
     for idx,qa in enumerate(sheat_qa):
         table_raw_data.append([qa['question'],qa["answer"], qa["student_answer"],answer_dict['score_questions'][idx]])
     # print(table_raw_data)
+    console.print("[bright_green] Congrate!🥳, Here is your test Results [/bright_green]\n")
     display_table(columns=["Question","Answer","Your Answer","Score"],title="Marking-Scheam",row_data=table_raw_data)
+    quote=choice(quotes)
     reusable_panel_console(text=f"Total Score: {answer_dict["test_score"]}",border_style="green",title="YOUR SCORE")
+    console.print(Panel.fit(f"[bright_blue]{quote[0]}[/bright_blue]\n[magenta]By - {quote[1]}[/magenta]",title="⚡",border_style='bright_blue'))
+
 
 
 
@@ -349,7 +353,7 @@ def test_gen_bot(filename:str,notes: str):
 
     #Instruction example
     print('\n')
-    console.print(Panel.fit("1. I need ten multiple choice, \n2. fill the blank questions ,\n3.Just 5 short explanation qn\n4. True and false 5 question \n5.Two essay qn\n6. short answer question, etc", title="Example of Instruction.🥰",border_style='yellow'))
+    console.print(Panel.fit("1. Multiple choice -5, \n2. Fill in the blank ,\n3.Essay\n4. True and false 10 questions \n5.Short explanation\n6. short answer 6 questions,\n7. Mix of different types, etc", title="Example of Instruction.🥰",border_style='yellow'))
 
     #llm
     call_llm(SYSTEM_PROMPT,bot_name="test")
